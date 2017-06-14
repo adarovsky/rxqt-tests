@@ -1,0 +1,9 @@
+[submodule "3rdparty/rxqt"]
+	path = 3rdparty/rxqt
+	url = https://github.com/adarovsky/rxqt.git
+[submodule "3rdparty/range-v3"]
+	path = 3rdparty/range-v3
+	url = git@github.com:ericniebler/range-v3.git
+[submodule "3rdparty/RxCpp"]
+	path = 3rdparty/RxCpp
+	url = https://github.com/Reactive-Extensions/RxCpp.git
