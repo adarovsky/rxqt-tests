@@ -45,15 +45,18 @@ int main(int argc, char *argv[])
 
     auto x = input
      | rxo::drop_map([=](auto x) {
-           return process_all(QString::number(x));
-//        return rxcpp::sources::just(rxcpp::sources::just(QString::number(x)));
-       }, [](auto a, auto sub) { return sub; });
+           QTime time; time.start();
+           return process_all(QString::number(x)).tap([](auto) {}, [x, time]() {
+               qDebug() << QThread::currentThreadId() << ": frame" << x << "processed in" << time.elapsed() << "msec";
+           });
+       });
 
+    QTime started; started.start();
     x.observe_on(rxcpp::observe_on_qt_event_loop()).
       subscribe([](QString x) {
         qDebug() << QThread::currentThreadId() << ":" << x;
     }, [&]() {
-        qDebug() << QThread::currentThreadId() << ": completed";
+        qDebug() << QThread::currentThreadId() << ": completed in" << started.elapsed() << "msec";
         app.quit();
     });
 

@@ -10,7 +10,7 @@ SampleProcessor::SampleProcessor(const QString & name, QSharedPointer<std::rando
 QString SampleProcessor::doWork(const QString& input)
 {
     m_counter++;
-    auto p = 40 + m_dist(*m_random);
+    auto p = 100 + m_dist(*m_random);
     QThread::currentThread()->msleep(p);
     return QString("0x%4: %1: %2-%3").arg(m_name, input,
                                                     QString::number(m_counter),
