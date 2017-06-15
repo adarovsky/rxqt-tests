@@ -10,6 +10,7 @@
 QSharedPointer<std::random_device> rd;
 
 namespace rxo = rxcpp::operators;
+typedef QSharedPointer<SampleProcessor> ProcRef;
 
 int main(int argc, char *argv[])
 {
@@ -18,11 +19,11 @@ int main(int argc, char *argv[])
     rd.reset(new std::random_device);
     auto thread = rxcpp::observe_on_event_loop();
 
-    std::vector<QSharedPointer<SampleProcessor>> list;
+    std::vector<ProcRef> list;
     for (int i = 1; i <= 10; ++i)
-        list.push_back( QSharedPointer<SampleProcessor>(new SampleProcessor(QString("proc-").append(QString::number(i)), rd)) );
+        list.push_back( ProcRef(new SampleProcessor(QString("proc-").append(QString::number(i)), rd)) );
 
-    auto process = [](auto text, QSharedPointer<SampleProcessor> processor) {
+    auto process = [](QString text, ProcRef processor) {
         qDebug().noquote() << QThread::currentThreadId() << ":" << processor->name() << "- making observable for:" << text;
         QTime time; time.start();
         return rxcpp::observable<>::create<QString>([text, processor, time](const rxcpp::subscriber<QString>& s){
@@ -38,7 +39,7 @@ int main(int argc, char *argv[])
 
     auto process_all = [list, process, thread](const QString& text) {
         auto all = rxcpp::sources::iterate(list).
-                   map([=](auto processor) {
+                   map([=](ProcRef processor) {
                        return process(text, processor).
                        subscribe_on(thread);
                    });
@@ -46,9 +47,9 @@ int main(int argc, char *argv[])
     };
 
     auto x = input
-     | rxo::drop_map([=](auto x) {
+     | rxo::drop_map([=](int x) {
            QTime time; time.start();
-           return process_all(QString::number(x)).tap([](auto) {}, [x, time]() {
+           return process_all(QString::number(x)).tap([](QString) {}, [x, time]() {
                qDebug() << QThread::currentThreadId() << ": frame" << x << "processed in" << time.elapsed() << "msec";
            });
        });
