@@ -6,7 +6,6 @@
 #include <rxqt.hpp>
 #include <rx-drop_map.hpp>
 #include <rxcpp/rx.hpp>
-#include <range/v3/all.hpp>
 #include "benchmark.h"
 
 namespace rxo = rxcpp::operators;
@@ -42,10 +41,11 @@ void TestBenchmark::testSingleThreadedFrameProcessing()
     auto input = rxcpp::observable<>::range(1, kNumbSamples);
 
     auto process_all = [list, process](const QString& text) {
-        auto all = list | ranges::view::transform([process, text](QSharedPointer<SampleProcessor> processor) {
-            return process(text, processor);
-        });
-        return rxcpp::sources::iterate(all) | rxo::merge();
+        auto all = rxcpp::sources::iterate(list).
+                   map([=](auto processor) {
+                       return process(text, processor);
+                   });
+        return all.as_dynamic() | rxo::merge();
     };
 
     auto x = input
@@ -81,10 +81,13 @@ void TestBenchmark::testMultiThreadedFrameProcessing()
                  subscribe_on(rxcpp::observe_on_new_thread());
 
     auto process_all = [list, process, thread](const QString& text) {
-        auto all = list | ranges::view::transform([process, text, thread](QSharedPointer<SampleProcessor> processor) {
-            return process(text, processor).subscribe_on(thread).as_dynamic();
-        });
-        return rxcpp::sources::iterate(all).merge(thread);
+        auto all = rxcpp::sources::iterate(list).
+                   map([=](auto processor) {
+                       return process(text, processor).
+                              subscribe_on(thread).
+                              as_dynamic();
+                   });
+        return all | rxo::merge(thread);
     };
 
     auto x = input
@@ -121,10 +124,13 @@ void TestBenchmark::testEventLoopFrameProcessing()
                  subscribe_on(rxcpp::observe_on_new_thread());
 
     auto process_all = [list, process, thread](const QString& text) {
-        auto all = list | ranges::view::transform([process, text, thread](QSharedPointer<SampleProcessor> processor) {
-            return process(text, processor).subscribe_on(thread).as_dynamic();
-        });
-        return rxcpp::sources::iterate(all).merge(thread);
+        auto all = rxcpp::sources::iterate(list).
+                   map([=](auto processor) {
+                       return process(text, processor).
+                       subscribe_on(thread).
+                       as_dynamic();
+                   });
+        return all | rxo::merge(thread);
     };
 
     auto x = input

@@ -4,7 +4,6 @@
 #include <rxqt.hpp>
 #include <rx-drop_map.hpp>
 #include <rxcpp/rx.hpp>
-#include <range/v3/all.hpp>
 #include "sampleprocessor.h"
 
 QSharedPointer<std::random_device> rd;
@@ -37,10 +36,12 @@ int main(int argc, char *argv[])
                  subscribe_on(thread);
 
     auto process_all = [list, process, thread](const QString& text) {
-        auto all = list | ranges::view::transform([process, text, thread](QSharedPointer<SampleProcessor> processor) {
-            return process(text, processor).subscribe_on(thread);
-        });
-        return rxcpp::sources::iterate(all) | rxo::merge();
+        auto all = rxcpp::sources::iterate(list).
+                   map([=](auto processor) {
+                       return process(text, processor).
+                       subscribe_on(thread);
+                   });
+        return all.as_dynamic() | rxo::merge();
     };
 
     auto x = input
