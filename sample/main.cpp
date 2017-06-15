@@ -1,8 +1,9 @@
 #include <QCoreApplication>
 #include <QTime>
 #include <QThread>
-#include <rxqt.hpp>
+#include <QtDebug>
 #include <rx-drop_map.hpp>
+#include <rxqt-eventloop.hpp>
 #include <rxcpp/rx.hpp>
 #include "sampleprocessor.h"
 
@@ -55,7 +56,7 @@ int main(int argc, char *argv[])
     QTime started; started.start();
     x.observe_on(rxcpp::observe_on_qt_event_loop()).
       subscribe([](QString x) {
-        qDebug() << QThread::currentThreadId() << ":" << x;
+        qDebug() << QThread::currentThreadId() << ": - " << x;
     }, [&]() {
         qDebug() << QThread::currentThreadId() << ": completed in" << started.elapsed() << "msec";
         app.quit();

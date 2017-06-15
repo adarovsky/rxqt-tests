@@ -3,8 +3,6 @@
 #include <QtTest>
 #include <QtDebug>
 
-#include <rxqt.hpp>
-#include <rx-drop_map.hpp>
 #include <rxcpp/rx.hpp>
 #include "benchmark.h"
 
