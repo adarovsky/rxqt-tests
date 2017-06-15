@@ -20,15 +20,16 @@ int main(int argc, char *argv[])
     auto thread = rxcpp::observe_on_event_loop();
 
     std::vector<ProcRef> list;
-    for (int i = 1; i <= 10; ++i)
+    for (int i = 1; i <= 20; ++i)
         list.push_back( ProcRef(new SampleProcessor(QString("proc-").append(QString::number(i)), rd)) );
 
     auto process = [](QString text, ProcRef processor) {
         qDebug().noquote() << QThread::currentThreadId() << ":" << processor->name() << "- making observable for:" << text;
         QTime time; time.start();
         return rxcpp::observable<>::create<QString>([text, processor, time](const rxcpp::subscriber<QString>& s){
+            QTime ctime; ctime.start();
             auto r = processor->doWork(text);
-            s.on_next( r + " - execution time: " + QString::number(time.elapsed()) + " msec" );
+            s.on_next( r + " - execution time (with queue): " + QString::number(time.elapsed()) + " msec, clean: " + QString::number(ctime.elapsed()) + " msec");
             s.on_completed();
         });
     };

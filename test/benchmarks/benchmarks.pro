@@ -7,7 +7,7 @@ TARGET = rxqt
 CONFIG += console
 CONFIG -= app_bundle
 
-include(../defaults.pri)
+include(../../defaults.pri)
 
 TEMPLATE = app
 

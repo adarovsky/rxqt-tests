@@ -1,2 +1,2 @@
 TEMPLATE=subdirs
-SUBDIRS=sample benchmarks
+SUBDIRS=sample test
