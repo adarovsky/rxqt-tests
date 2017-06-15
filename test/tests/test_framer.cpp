@@ -40,7 +40,7 @@ void TestFramer::testSinglePacket()
     auto res = w.start(
         [xs, &f]() {
             return xs
-                | rxo::flat_map(f)
+                | rxo::concat_map(f)
                 | rxo::as_dynamic(); // forget type to workaround lambda deduction bug on msvc 2013
         }
     );
@@ -77,7 +77,7 @@ void TestFramer::test2Packets()
     auto res = w.start(
         [xs, &f]() {
             return xs
-                | rxo::flat_map(f)
+                | rxo::concat_map(f)
                 | rxo::as_dynamic(); // forget type to workaround lambda deduction bug on msvc 2013
         }
     );
@@ -116,7 +116,7 @@ void TestFramer::test2SplitPackets()
     auto res = w.start(
         [xs, &f]() {
             return xs
-                | rxo::flat_map(f)
+                | rxo::concat_map(f)
                 | rxo::as_dynamic(); // forget type to workaround lambda deduction bug on msvc 2013
         }
     );
