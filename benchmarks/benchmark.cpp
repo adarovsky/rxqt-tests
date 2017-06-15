@@ -30,7 +30,7 @@ void TestBenchmark::testSingleThreadedFrameProcessing()
     for (int i = 1; i <= 10; ++i)
         list.push_back( QSharedPointer<SampleProcessor>(new SampleProcessor ) );
 
-    auto process = [](auto text, QSharedPointer<SampleProcessor> processor) {
+    auto process = [](QString text, QSharedPointer<SampleProcessor> processor) {
         return rxcpp::observable<>::create<QString>([text, processor](const rxcpp::subscriber<QString>& s){
             auto r = processor->doWork(text);
             s.on_next( r );
@@ -40,16 +40,16 @@ void TestBenchmark::testSingleThreadedFrameProcessing()
 
     auto input = rxcpp::observable<>::range(1, kNumbSamples);
 
-    auto process_all = [list, process](const QString& text) {
+    auto process_all = [=](const QString& text) {
         auto all = rxcpp::sources::iterate(list).
-                   map([=](auto processor) {
+                   map([=](QSharedPointer<SampleProcessor> processor) {
                        return process(text, processor);
                    });
         return all.as_dynamic() | rxo::merge();
     };
 
     auto x = input
-     | rxo::concat_map([=](auto x) {
+     | rxo::concat_map([=](int x) {
            return process_all(QString::number(x));
        });
 
@@ -69,7 +69,7 @@ void TestBenchmark::testMultiThreadedFrameProcessing()
 
     auto thread = rxcpp::observe_on_new_thread();
 
-    auto process = [](auto text, QSharedPointer<SampleProcessor> processor) {
+    auto process = [](QString text, QSharedPointer<SampleProcessor> processor) {
         return rxcpp::observable<>::create<QString>([text, processor](const rxcpp::subscriber<QString>& s){
             auto r = processor->doWork(text);
             s.on_next( r );
@@ -80,9 +80,9 @@ void TestBenchmark::testMultiThreadedFrameProcessing()
     auto input = rxcpp::observable<>::range(1, kNumbSamples).
                  subscribe_on(rxcpp::observe_on_new_thread());
 
-    auto process_all = [list, process, thread](const QString& text) {
+    auto process_all = [=](const QString& text) {
         auto all = rxcpp::sources::iterate(list).
-                   map([=](auto processor) {
+                   map([=](QSharedPointer<SampleProcessor> processor) {
                        return process(text, processor).
                               subscribe_on(thread).
                               as_dynamic();
@@ -91,7 +91,7 @@ void TestBenchmark::testMultiThreadedFrameProcessing()
     };
 
     auto x = input
-     | rxo::concat_map([=](auto x) {
+     | rxo::concat_map([=](int x) {
            return process_all(QString::number(x));
        });
 
@@ -112,7 +112,7 @@ void TestBenchmark::testEventLoopFrameProcessing()
 
     auto thread = rxcpp::observe_on_event_loop();
 
-    auto process = [](auto text, QSharedPointer<SampleProcessor> processor) {
+    auto process = [](QString text, QSharedPointer<SampleProcessor> processor) {
         return rxcpp::observable<>::create<QString>([text, processor](const rxcpp::subscriber<QString>& s){
             auto r = processor->doWork(text);
             s.on_next( r );
@@ -123,9 +123,9 @@ void TestBenchmark::testEventLoopFrameProcessing()
     auto input = rxcpp::observable<>::range(1, kNumbSamples).
                  subscribe_on(rxcpp::observe_on_new_thread());
 
-    auto process_all = [list, process, thread](const QString& text) {
+    auto process_all = [=](const QString& text) {
         auto all = rxcpp::sources::iterate(list).
-                   map([=](auto processor) {
+                   map([=](QSharedPointer<SampleProcessor> processor) {
                        return process(text, processor).
                        subscribe_on(thread).
                        as_dynamic();
@@ -134,7 +134,7 @@ void TestBenchmark::testEventLoopFrameProcessing()
     };
 
     auto x = input
-     | rxo::concat_map([=](auto x) {
+     | rxo::concat_map([=](int x) {
            return process_all(QString::number(x));
        });
 
