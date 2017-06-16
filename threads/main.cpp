@@ -24,17 +24,17 @@ int main(int argc, char *argv[])
         });
     };
 
-    auto input = rxcpp::observable<>::range(1, 20);
+    auto input = rxcpp::observable<>::range(1, 400);
 
     auto process_all = [&](int i) {
         qDebug() << QThread::currentThreadId() << ": handling top sequence" << i;
-        auto all = rxcpp::sources::range(1, 10).
+        auto all = rxcpp::sources::range(1, 300).
                    map([=](int j) {
                        return process(QString("%1 - %2").arg(QString::number(i), QString::number(j))).
                                subscribe_on(thread).
                                as_dynamic();
                    });
-        return all | rxo::merge(main_thread);
+        return all | rxo::merge(thread);
     };
 
     (input
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
            qDebug() << QThread::currentThreadId() << ": - " << x;
        }, [&]() {
            qDebug() << QThread::currentThreadId() << ": completed";
-           app.quit();
+           QTimer::singleShot(500, &app, SLOT(quit()));
        });
 
     qDebug() << QThread::currentThreadId() << "started";
