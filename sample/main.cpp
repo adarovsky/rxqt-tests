@@ -3,6 +3,7 @@
 #include <QThread>
 #include <QtDebug>
 #include <rx-drop_map.hpp>
+#include <rxqt.hpp>
 #include <rxqt-eventloop.hpp>
 #include <rxcpp/rx.hpp>
 #include "sampleprocessor.h"
@@ -42,9 +43,10 @@ int main(int argc, char *argv[])
         auto all = rxcpp::sources::iterate(list).
                    map([=](ProcRef processor) {
                        return process(text, processor).
-                       subscribe_on(thread);
+                               subscribe_on(thread).
+                               as_dynamic();
                    });
-        return all.as_dynamic() | rxo::merge();
+        return all | rxo::merge(thread);
     };
 
     auto x = input

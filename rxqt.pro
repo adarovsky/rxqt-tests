@@ -1,2 +1,3 @@
 TEMPLATE=subdirs
-SUBDIRS=sample test
+SUBDIRS=sample test threads
+

@@ -117,6 +117,7 @@ void TestFramer::test2SplitPackets()
         [xs, &f]() {
             return xs
                 | rxo::concat_map(f)
+//                | rxo::map(make_protobuf)
                 | rxo::as_dynamic(); // forget type to workaround lambda deduction bug on msvc 2013
         }
     );
