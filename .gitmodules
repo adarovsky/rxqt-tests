@@ -4,6 +4,6 @@
 [submodule "3rdparty/range-v3"]
 	path = 3rdparty/range-v3
 	url = git@github.com:ericniebler/range-v3.git
-[submodule "3rdparty/RxCpp"]
-	path = 3rdparty/RxCpp
+[submodule "3rdparty/rxcpp"]
+	path = 3rdparty/rxcpp
 	url = https://github.com/Reactive-Extensions/RxCpp.git

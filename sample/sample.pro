@@ -7,6 +7,8 @@ TARGET = rxqt
 CONFIG += console
 CONFIG -= app_bundle
 
+QMAKE_CXXFLAGS += -ftemplate-backtrace-limit=0
+
 include(../defaults.pri)
 
 TEMPLATE = app
